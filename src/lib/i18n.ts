@@ -18,12 +18,16 @@ const translations = {
   // Search
   searchPlaceholder: { ja: "地名を検索...", zh: "搜索地名...", en: "Search place..." },
 
-  // Status
+  // Display statuses (4 groups)
   つぼみ: { ja: "つぼみ", zh: "花蕾", en: "Budding" },
+  開花中: { ja: "開花中", zh: "开花中", en: "Blooming" },
+  満開: { ja: "満開", zh: "满开", en: "Full Bloom" },
+  葉桜: { ja: "葉桜", zh: "叶樱", en: "Past Peak" },
+
+  // Raw statuses (for detail display)
   咲き始め: { ja: "咲き始め", zh: "初开", en: "Starting" },
   "5分咲き": { ja: "5分咲き", zh: "半开", en: "50%" },
   "7分咲き": { ja: "7分咲き", zh: "七分开", en: "70%" },
-  満開: { ja: "満開", zh: "满开", en: "Full Bloom" },
   散り始め: { ja: "散り始め", zh: "开始凋谢", en: "Falling" },
   青葉: { ja: "青葉", zh: "绿叶", en: "Green" },
 

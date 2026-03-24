@@ -60,9 +60,9 @@ export default function ExplorePage() {
   }, [spots, statusFilter, regionFilter, search]);
 
   return (
-    <div className="min-h-dvh bg-gray-50 pb-nav">
-      <div className="sticky top-0 z-10 space-y-2 bg-white px-4 pb-3 pt-4 shadow-sm">
-        <h1 className="text-lg font-bold text-gray-900">{t("exploreTitle")}</h1>
+    <div className="min-h-dvh bg-warm-bg pb-nav">
+      <div className="sticky top-0 z-10 space-y-2 bg-warm-card px-4 pb-3 pt-4 shadow-sm">
+        <h1 className="text-lg font-bold text-warm-text">{t("exploreTitle")}</h1>
 
         <div className="relative">
           <input
@@ -70,10 +70,10 @@ export default function ExplorePage() {
             placeholder={t("searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-9 pr-4 text-sm outline-none focus:border-pink-300 focus:bg-white"
+            className="w-full rounded-full border border-warm-border bg-white py-2 pl-9 pr-4 text-sm outline-none focus:border-warm-accent"
           />
           <svg
-            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-warm-muted"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -90,8 +90,8 @@ export default function ExplorePage() {
               onClick={() => setRegionFilter(r.value)}
               className={`flex-shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                 regionFilter === r.value
-                  ? "bg-pink-500 text-white"
-                  : "bg-gray-100 text-gray-600"
+                  ? "bg-warm-accent text-white"
+                  : "bg-warm-peach text-warm-muted"
               }`}
             >
               {r.value || t("allRegions")}
@@ -110,7 +110,7 @@ export default function ExplorePage() {
           }
         />
 
-        <p className="text-[11px] text-gray-400">
+        <p className="text-[11px] text-warm-muted">
           {filtered.length} {t("spots")}
         </p>
       </div>
@@ -121,7 +121,7 @@ export default function ExplorePage() {
             <span className="animate-pulse text-2xl">🌸</span>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="py-12 text-center text-sm text-gray-400">
+          <div className="py-12 text-center text-sm text-warm-muted">
             {t("noResults")}
           </div>
         ) : (
@@ -130,7 +130,7 @@ export default function ExplorePage() {
           ))
         )}
         {filtered.length > 100 && (
-          <p className="py-4 text-center text-xs text-gray-400">
+          <p className="py-4 text-center text-xs text-warm-muted">
             {tReplace("showingTop", { n: 100, total: filtered.length })}
           </p>
         )}

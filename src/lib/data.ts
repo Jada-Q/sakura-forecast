@@ -31,18 +31,52 @@ export interface SakuraData {
   spots: Omit<SakuraSpot, "id">[];
 }
 
+// Display groups: 7 raw statuses → 4 display statuses
+export type DisplayStatus = "つぼみ" | "開花中" | "満開" | "葉桜";
+
+const BLOOM_TO_DISPLAY: Record<BloomStatus, DisplayStatus> = {
+  つぼみ: "つぼみ",
+  咲き始め: "開花中",
+  "5分咲き": "開花中",
+  "7分咲き": "開花中",
+  満開: "満開",
+  散り始め: "葉桜",
+  青葉: "葉桜",
+};
+
+export function getDisplayStatus(status: BloomStatus): DisplayStatus {
+  return BLOOM_TO_DISPLAY[status] ?? "つぼみ";
+}
+
+// Reverse mapping: display status → all raw statuses it includes
+export const DISPLAY_TO_BLOOM: Record<DisplayStatus, BloomStatus[]> = {
+  つぼみ: ["つぼみ"],
+  開花中: ["咲き始め", "5分咲き", "7分咲き"],
+  満開: ["満開"],
+  葉桜: ["散り始め", "青葉"],
+};
+
+export const DISPLAY_STATUS_CONFIG: Record<
+  DisplayStatus,
+  { color: string; borderColor: string; emoji: string }
+> = {
+  つぼみ: { color: "#B5C9A8", borderColor: "#8FAF7C", emoji: "🌱" },
+  開花中: { color: "#E8B89D", borderColor: "#D09070", emoji: "🌷" },
+  満開: { color: "#D4848B", borderColor: "#BE6B73", emoji: "🌸" },
+  葉桜: { color: "#B5A99A", borderColor: "#958778", emoji: "🍃" },
+};
+
+// Keep STATUS_CONFIG for backward compat (maps raw status → display color)
 export const STATUS_CONFIG: Record<
   BloomStatus,
-  { color: string; emoji: string; label: string }
-> = {
-  つぼみ: { color: "#E8F5E9", emoji: "", label: "つぼみ" },
-  咲き始め: { color: "#FFE4E8", emoji: "🌱", label: "咲き始め" },
-  "5分咲き": { color: "#FFD1DB", emoji: "🌷", label: "5分咲き" },
-  "7分咲き": { color: "#FFC2D1", emoji: "🌸", label: "7分咲き" },
-  満開: { color: "#FFB7C5", emoji: "🌸", label: "満開" },
-  散り始め: { color: "#F5F5F5", emoji: "🍃", label: "散り始め" },
-  青葉: { color: "#D9EBD9", emoji: "🌿", label: "青葉" },
-};
+  { color: string; borderColor: string; emoji: string; label: string }
+> = Object.fromEntries(
+  (Object.keys(BLOOM_TO_DISPLAY) as BloomStatus[]).map((status) => {
+    const display = BLOOM_TO_DISPLAY[status];
+    const config = DISPLAY_STATUS_CONFIG[display];
+    return [status, { ...config, label: status }];
+  })
+) as Record<BloomStatus, { color: string; borderColor: string; emoji: string; label: string }>;
 
 export const REGIONS = [
   "北海道",

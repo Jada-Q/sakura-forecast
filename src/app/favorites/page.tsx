@@ -32,10 +32,10 @@ export default function FavoritesPage() {
   }, []);
 
   return (
-    <div className="min-h-dvh bg-gray-50 pb-nav">
-      <div className="bg-white px-4 pb-3 pt-4 shadow-sm">
-        <h1 className="text-lg font-bold text-gray-900">{t("favoritesTitle")}</h1>
-        <p className="text-xs text-gray-400">
+    <div className="min-h-dvh bg-warm-bg pb-nav">
+      <div className="bg-warm-card px-4 pb-3 pt-4 shadow-sm">
+        <h1 className="text-lg font-bold text-warm-text">{t("favoritesTitle")}</h1>
+        <p className="text-xs text-warm-muted">
           {spots.length} {t("spots")}
         </p>
       </div>
@@ -48,10 +48,10 @@ export default function FavoritesPage() {
         ) : spots.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-16">
             <span className="text-4xl opacity-30">🌸</span>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-warm-muted">
               {t("noFavorites")}
             </p>
-            <p className="text-xs text-gray-300">
+            <p className="text-xs text-warm-muted/60">
               {t("addFavHint")}
             </p>
           </div>

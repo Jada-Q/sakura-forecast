@@ -1,9 +1,14 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-sakura: #FFB7C5;
-  --color-sakura-light: #FFF0F3;
-  --color-sakura-dark: #e91e63;
+  --color-warm-bg: #FFF8F3;
+  --color-warm-card: #FFFCF9;
+  --color-warm-accent: #D4848B;
+  --color-warm-accent-dark: #BE6B73;
+  --color-warm-border: #F0DDD3;
+  --color-warm-text: #5C4338;
+  --color-warm-muted: #A08878;
+  --color-warm-peach: #FFF0E8;
 }
 
 @font-face {
@@ -18,8 +23,8 @@ body {
   font-family: "Zen Maru Gothic", -apple-system, BlinkMacSystemFont, "Segoe UI",
     Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: #fff;
-  color: #1a1a1a;
+  background: #FFF8F3;
+  color: #5C4338;
 }
 
 /* Bottom nav safe area */

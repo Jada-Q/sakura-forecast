@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { STATUS_CONFIG, type SakuraSpot, type BloomStatus } from "@/lib/data";
+import { STATUS_CONFIG, DISPLAY_STATUS_CONFIG, getDisplayStatus, type SakuraSpot, type BloomStatus } from "@/lib/data";
 
 function statusColor(status: BloomStatus): string {
   return STATUS_CONFIG[status]?.color ?? "#ccc";
@@ -68,8 +68,8 @@ export default function SakuraMap({
             pathOptions={{
               fillColor: statusColor(spot.status),
               fillOpacity: 0.9,
-              color: isMankai ? "#e91e63" : "#999",
-              weight: isMankai ? 2 : 1,
+              color: STATUS_CONFIG[spot.status]?.borderColor ?? "#999",
+              weight: 2,
             }}
             eventHandlers={{
               click: () => onSpotClick(spot),
@@ -78,7 +78,7 @@ export default function SakuraMap({
             <Tooltip direction="top" offset={[0, -6]}>
               <b>{spot.name}</b>
               <br />
-              {STATUS_CONFIG[spot.status]?.emoji ?? ""} {spot.status}
+              {DISPLAY_STATUS_CONFIG[getDisplayStatus(spot.status)]?.emoji ?? ""} {getDisplayStatus(spot.status)}
             </Tooltip>
           </CircleMarker>
         );

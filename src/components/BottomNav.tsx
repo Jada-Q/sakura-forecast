@@ -16,7 +16,7 @@ export default function BottomNav() {
   const { t } = useLocale();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white/95 backdrop-blur-sm safe-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-warm-border bg-warm-card/95 backdrop-blur-sm safe-bottom">
       <div className="mx-auto flex max-w-lg">
         {NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -25,7 +25,7 @@ export default function BottomNav() {
               key={href}
               href={href}
               className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-xs transition-colors ${
-                active ? "text-pink-500" : "text-gray-400"
+                active ? "text-warm-accent" : "text-warm-muted"
               }`}
             >
               <Icon active={active} />

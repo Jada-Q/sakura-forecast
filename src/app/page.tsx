@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import FilterChips from "@/components/FilterChips";
 import StatusBadge from "@/components/StatusBadge";
 import LangSwitcher from "@/components/LangSwitcher";
-import { DATA_URL, STATUS_CONFIG, type SakuraSpot, type BloomStatus, type SakuraData } from "@/lib/data";
+import { DATA_URL, STATUS_CONFIG, DISPLAY_STATUS_CONFIG, getDisplayStatus, type SakuraSpot, type BloomStatus, type SakuraData } from "@/lib/data";
 import { toggleFavorite, isFavorite } from "@/lib/favorites";
 import { useLocale } from "@/lib/locale-context";
 import type { TranslationKey } from "@/lib/i18n";
@@ -102,15 +102,15 @@ export default function MapPage() {
   return (
     <div className="relative flex h-dvh flex-col pb-nav">
       {/* Header */}
-      <div className="relative z-10 space-y-2 bg-white/95 px-4 pb-2 pt-3 shadow-sm backdrop-blur-sm">
+      <div className="relative z-10 space-y-2 bg-warm-card/95 px-4 pb-2 pt-3 shadow-sm backdrop-blur-sm">
         <div className="flex items-center justify-between">
-          <h1 className="text-lg font-bold text-gray-900">
+          <h1 className="text-lg font-bold text-warm-text">
             🌸 {t("appTitle")}
           </h1>
           <div className="flex items-center gap-2">
             <LangSwitcher />
             {meta && (
-              <span className="text-[10px] text-gray-400">
+              <span className="text-[10px] text-warm-muted">
                 {meta.updatedAt}
               </span>
             )}
@@ -130,10 +130,10 @@ export default function MapPage() {
             onFocus={() => {
               if (search.trim()) setShowResults(true);
             }}
-            className="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-9 pr-10 text-sm outline-none transition-colors focus:border-pink-300 focus:bg-white"
+            className="w-full rounded-full border border-warm-border bg-white py-2 pl-9 pr-10 text-sm outline-none transition-colors focus:border-warm-accent"
           />
           <svg
-            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+            className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-warm-muted"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -144,7 +144,7 @@ export default function MapPage() {
           {search && (
             <button
               onClick={() => { setSearch(""); setShowResults(false); }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-warm-muted hover:text-warm-text"
             >
               ✕
             </button>
@@ -152,9 +152,9 @@ export default function MapPage() {
 
           {/* Search results dropdown */}
           {showResults && search.trim() && (
-            <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg">
+            <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-xl border border-warm-border bg-white shadow-lg">
               {filteredSpots.length === 0 ? (
-                <div className="px-4 py-3 text-center text-sm text-gray-400">
+                <div className="px-4 py-3 text-center text-sm text-warm-muted">
                   {t("noResults")}
                 </div>
               ) : (
@@ -162,25 +162,25 @@ export default function MapPage() {
                   <button
                     key={spot.id}
                     onClick={() => handleSearchSelect(spot)}
-                    className="flex w-full items-center gap-3 border-b border-gray-50 px-4 py-2.5 text-left transition-colors hover:bg-pink-50 last:border-b-0"
+                    className="flex w-full items-center gap-3 border-b border-warm-border/50 px-4 py-2.5 text-left transition-colors hover:bg-warm-peach last:border-b-0"
                   >
                     <span
                       className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm"
-                      style={{ backgroundColor: STATUS_CONFIG[spot.status]?.color ?? "#eee" }}
+                      style={{ backgroundColor: DISPLAY_STATUS_CONFIG[getDisplayStatus(spot.status)]?.color ?? "#eee" }}
                     >
-                      {STATUS_CONFIG[spot.status]?.emoji || "🌸"}
+                      {DISPLAY_STATUS_CONFIG[getDisplayStatus(spot.status)]?.emoji || "🌸"}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-gray-900">{spot.name}</p>
-                      <p className="text-xs text-gray-400">
-                        {spot.region} · {t(spot.status as TranslationKey)}
+                      <p className="truncate text-sm font-medium text-warm-text">{spot.name}</p>
+                      <p className="text-xs text-warm-muted">
+                        {spot.region} · {t(getDisplayStatus(spot.status) as TranslationKey)}
                       </p>
                     </div>
                   </button>
                 ))
               )}
               {filteredSpots.length > 20 && (
-                <div className="px-4 py-2 text-center text-[11px] text-gray-400">
+                <div className="px-4 py-2 text-center text-[11px] text-warm-muted">
                   +{filteredSpots.length - 20} ...
                 </div>
               )}
@@ -192,7 +192,7 @@ export default function MapPage() {
         <FilterChips selected={statusFilter} onToggle={toggleStatus} />
 
         {/* Count */}
-        <p className="text-[11px] text-gray-400">
+        <p className="text-[11px] text-warm-muted">
           {filteredSpots.length} / {spots.length} {t("spotsShowing")}
         </p>
       </div>
@@ -215,12 +215,12 @@ export default function MapPage() {
       {/* Spot preview sheet */}
       {selectedSpot && (
         <div className="fixed inset-x-0 bottom-[60px] z-[1000] mx-auto max-w-lg px-4 pb-2">
-          <div className="relative rounded-2xl border border-gray-100 bg-white p-4 shadow-lg">
+          <div className="relative rounded-2xl border border-warm-border bg-warm-card p-4 shadow-lg">
             <div className="absolute right-3 top-3 flex gap-2">
               <FavButton spotId={selectedSpot.id} />
               <button
                 onClick={() => setSelectedSpot(null)}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:text-gray-600"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-warm-peach text-warm-muted hover:text-warm-text"
                 aria-label="Close"
               >
                 ✕
@@ -230,23 +230,23 @@ export default function MapPage() {
               {selectedSpot.imageUrl ? (
                 <img src={selectedSpot.imageUrl} alt={selectedSpot.name} className="h-20 w-20 rounded-xl object-cover" />
               ) : (
-                <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-pink-50 text-3xl">🌸</div>
+                <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-warm-peach text-3xl">🌸</div>
               )}
               <div className="flex-1 pr-16">
-                <h3 className="text-base font-bold text-gray-900">{selectedSpot.name}</h3>
-                <p className="text-xs text-gray-500">{selectedSpot.region}</p>
+                <h3 className="text-base font-bold text-warm-text">{selectedSpot.name}</h3>
+                <p className="text-xs text-warm-muted">{selectedSpot.region}</p>
                 <div className="mt-1">
                   <StatusBadge status={selectedSpot.status} size="md" />
                 </div>
                 {selectedSpot.season && (
-                  <p className="mt-1 text-xs text-gray-400">{t("bestSeason")}: {selectedSpot.season}</p>
+                  <p className="mt-1 text-xs text-warm-muted">{t("bestSeason")}: {selectedSpot.season}</p>
                 )}
               </div>
             </div>
             <div className="mt-3 flex gap-2">
               <button
                 onClick={() => { router.push(`/spot?id=${selectedSpot.id}`); setSelectedSpot(null); }}
-                className="flex-1 rounded-full bg-pink-500 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-pink-600"
+                className="flex-1 rounded-full bg-warm-accent py-2 text-center text-sm font-medium text-white transition-colors hover:bg-warm-accent-dark"
               >
                 {t("viewDetails")}
               </button>
@@ -254,7 +254,7 @@ export default function MapPage() {
                 <a
                   href={`https://www.google.com/maps/search/?api=1&query=${selectedSpot.lat},${selectedSpot.lng}`}
                   target="_blank" rel="noopener noreferrer"
-                  className="flex items-center justify-center rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                  className="flex items-center justify-center rounded-full border border-warm-border px-4 py-2 text-sm font-medium text-warm-text transition-colors hover:bg-warm-peach"
                 >
                   {t("mapLink")}
                 </a>
@@ -274,10 +274,10 @@ function FavButton({ spotId }: { spotId: number }) {
   return (
     <button
       onClick={() => { toggleFavorite(spotId); setFav(!fav); }}
-      className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100"
+      className="flex h-8 w-8 items-center justify-center rounded-full bg-warm-peach"
     >
       <svg
-        className={`h-4 w-4 ${fav ? "fill-pink-500 text-pink-500" : "text-gray-400"}`}
+        className={`h-4 w-4 ${fav ? "fill-warm-accent text-warm-accent" : "text-warm-muted"}`}
         fill={fav ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
       >
         <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
