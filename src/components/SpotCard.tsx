@@ -11,7 +11,7 @@ export default function SpotCard({ spot }: { spot: SakuraSpot }) {
 
   return (
     <Link
-      href={`/spot/${spot.id}`}
+      href={`/spot?id=${spot.id}`}
       className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-sm transition-shadow hover:shadow-md"
     >
       {spot.imageUrl ? (

@@ -1,19 +1,16 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import StatusBadge from "@/components/StatusBadge";
 import { DATA_URL, STATUS_CONFIG, type SakuraSpot, type SakuraData } from "@/lib/data";
 import { toggleFavorite, isFavorite } from "@/lib/favorites";
 import { useLocale } from "@/lib/locale-context";
 
-export default function SpotPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
-  const spotId = parseInt(id, 10);
+function SpotContent() {
+  const searchParams = useSearchParams();
+  const spotId = parseInt(searchParams.get("id") ?? "", 10);
   const router = useRouter();
   const { t } = useLocale();
   const [spot, setSpot] = useState<SakuraSpot | null>(null);
@@ -21,6 +18,7 @@ export default function SpotPage({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (isNaN(spotId)) { setLoading(false); return; }
     fetch(DATA_URL)
       .then((r) => r.json())
       .then((data: SakuraData) => {
@@ -54,16 +52,13 @@ export default function SpotPage({
     );
   }
 
-  const tierKey = spot.tier === "A" ? "tierA" : spot.tier === "B" ? "tierB" : "tierC";
+  const tierKey = spot.tier === "A" ? "tierA" as const : spot.tier === "B" ? "tierB" as const : "tierC" as const;
   const statusConfig = STATUS_CONFIG[spot.status];
 
   return (
     <div className="min-h-dvh bg-white pb-nav">
       {/* Hero */}
-      <div
-        className="relative h-56"
-        style={{ backgroundColor: statusConfig?.color ?? "#f5f5f5" }}
-      >
+      <div className="relative h-56" style={{ backgroundColor: statusConfig?.color ?? "#f5f5f5" }}>
         {spot.imageUrl ? (
           <img src={spot.imageUrl} alt={spot.name} className="h-full w-full object-cover" />
         ) : (
@@ -146,6 +141,18 @@ export default function SpotPage({
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SpotPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex h-dvh items-center justify-center">
+        <span className="animate-pulse text-3xl">🌸</span>
+      </div>
+    }>
+      <SpotContent />
+    </Suspense>
   );
 }
 

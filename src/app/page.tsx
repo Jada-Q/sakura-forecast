@@ -189,7 +189,7 @@ export default function MapPage() {
             <div className="mt-3 flex gap-2">
               <button
                 onClick={() => {
-                  router.push(`/spot/${selectedSpot.id}`);
+                  router.push(`/spot?id=${selectedSpot.id}`);
                   setSelectedSpot(null);
                 }}
                 className="flex-1 rounded-full bg-pink-500 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-pink-600"

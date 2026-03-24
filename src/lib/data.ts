@@ -58,8 +58,8 @@ export const REGIONS = [
   "沖縄",
 ] as const;
 
-// In production, replace with GitHub Pages URL once deployed
-export const DATA_URL = "/data.json";
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+export const DATA_URL = `${basePath}/data.json`;
 
 let cachedData: SakuraSpot[] | null = null;
 let cachedMeta: { updatedAt: string; counts: SakuraData["counts"] } | null =
