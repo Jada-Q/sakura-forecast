@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import SpotCard from "@/components/SpotCard";
 import FilterChips from "@/components/FilterChips";
-import { DATA_URL, type SakuraSpot, type BloomStatus, type SakuraData } from "@/lib/data";
+import { DATA_URL, getRegionGroup, type SakuraSpot, type BloomStatus, type SakuraData } from "@/lib/data";
 import { useLocale } from "@/lib/locale-context";
 
 const REGION_GROUPS = [
@@ -46,7 +46,7 @@ export default function ExplorePage() {
       result = result.filter((s) => statusFilter.has(s.status));
     }
     if (regionFilter) {
-      result = result.filter((s) => s.region.includes(regionFilter));
+      result = result.filter((s) => getRegionGroup(s.region) === regionFilter);
     }
     if (search.trim()) {
       const q = search.trim().toLowerCase();

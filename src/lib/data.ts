@@ -86,9 +86,29 @@ export async function fetchSakuraMeta() {
   return cachedMeta!;
 }
 
-export function getRegionFromName(region: string): string {
+// Prefecture → region group mapping
+const PREF_TO_REGION: Record<string, string> = {
+  北海道: "北海道",
+  青森県: "東北", 岩手県: "東北", 宮城県: "東北", 秋田県: "東北", 山形県: "東北", 福島県: "東北",
+  茨城県: "関東", 栃木県: "関東", 群馬県: "関東", 埼玉県: "関東", 千葉県: "関東", 東京都: "関東", 神奈川県: "関東",
+  新潟県: "甲信", 富山県: "北陸", 石川県: "北陸", 福井県: "北陸",
+  山梨県: "甲信", 長野県: "甲信",
+  岐阜県: "東海", 静岡県: "東海", 愛知県: "東海", 三重県: "東海",
+  滋賀県: "近畿", 京都府: "近畿", 大阪府: "近畿", 兵庫県: "近畿", 奈良県: "近畿", 和歌山県: "近畿",
+  鳥取県: "中国", 島根県: "中国", 岡山県: "中国", 広島県: "中国", 山口県: "中国",
+  徳島県: "四国", 香川県: "四国", 愛媛県: "四国", 高知県: "四国",
+  福岡県: "九州", 佐賀県: "九州", 長崎県: "九州", 熊本県: "九州", 大分県: "九州", 宮崎県: "九州", 鹿児島県: "九州",
+  沖縄県: "沖縄",
+};
+
+export function getRegionGroup(region: string): string {
+  // A-tier: region is like "関東甲信", "九州北部"
   for (const r of REGIONS) {
     if (region.includes(r)) return r;
+  }
+  // B/C-tier: region is like "東京都文京区", "埼玉県北本市"
+  for (const [pref, group] of Object.entries(PREF_TO_REGION)) {
+    if (region.startsWith(pref)) return group;
   }
   return "その他";
 }
