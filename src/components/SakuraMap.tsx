@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, CircleMarker, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { STATUS_CONFIG, DISPLAY_STATUS_CONFIG, getDisplayStatus, type SakuraSpot, type BloomStatus } from "@/lib/data";
+import { STATUS_CONFIG, type SakuraSpot, type BloomStatus } from "@/lib/data";
 
 function statusColor(status: BloomStatus): string {
   return STATUS_CONFIG[status]?.color ?? "#ccc";
@@ -74,13 +74,7 @@ export default function SakuraMap({
             eventHandlers={{
               click: () => onSpotClick(spot),
             }}
-          >
-            <Tooltip direction="top" offset={[0, -6]}>
-              <b>{spot.name}</b>
-              <br />
-              {DISPLAY_STATUS_CONFIG[getDisplayStatus(spot.status)]?.emoji ?? ""} {getDisplayStatus(spot.status)}
-            </Tooltip>
-          </CircleMarker>
+          />
         );
       })}
     </MapContainer>
