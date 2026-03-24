@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sakura Forecast
+
+日本全国 1,483 箇所の桜開花状況をリアルタイムで確認できるモバイルファーストの Web アプリ。
+
+## Features
+
+- **地図** — 全国の桜スポットを開花状態別にマップ表示（react-leaflet）
+- **検索 & フィルター** — 地名検索、開花状態（つぼみ〜青葉）でフィルタリング
+- **スポット詳細** — 開花状態、見頃時期、タグ、Google Maps リンク
+- **お気に入り** — localStorage でブックマーク管理
+- **探索** — 地域別・状態別のリスト表示
+
+## Data Source
+
+データは [sakura-mankai-tracker](https://github.com/Jada-Q/sakura-mankai-tracker) の自動パイプラインから取得：
+
+| Tier | Source | Count |
+|------|--------|-------|
+| A | 気象庁 (JMA) 公式観測 | 58 |
+| B | Walker+ 実測データ | 880 |
+| C | 最寄り JMA 観測点からの推定 | 545 |
+
+GitHub Actions で毎日 18:00 JST に自動更新。
+
+## Tech Stack
+
+- Next.js 16 + React 19
+- Tailwind CSS
+- react-leaflet + Leaflet (CartoDB tiles)
+- TypeScript
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## License
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
