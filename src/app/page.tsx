@@ -198,7 +198,7 @@ export default function MapPage() {
       </div>
 
       {/* Map */}
-      <div className="relative flex-1">
+      <div className="relative min-h-0 flex-1">
         {loading ? (
           <div className="flex h-full items-center justify-center">
             <span className="animate-pulse text-3xl">🌸</span>
