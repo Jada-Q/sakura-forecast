@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { MapContainer, TileLayer, CircleMarker, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { STATUS_CONFIG, type SakuraSpot, type BloomStatus } from "@/lib/data";
@@ -16,9 +16,20 @@ function FitBounds({ spots }: { spots: SakuraSpot[] }) {
   useEffect(() => {
     if (fitted.current || spots.length === 0) return;
     fitted.current = true;
-    // Default Japan bounds
     map.setView([36.5, 137.0], 6);
   }, [spots, map]);
+
+  return null;
+}
+
+function FlyTo({ spot }: { spot: SakuraSpot | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (spot?.lat != null && spot?.lng != null) {
+      map.flyTo([spot.lat, spot.lng], 14, { duration: 1 });
+    }
+  }, [spot, map]);
 
   return null;
 }
@@ -26,9 +37,11 @@ function FitBounds({ spots }: { spots: SakuraSpot[] }) {
 export default function SakuraMap({
   spots,
   onSpotClick,
+  focusSpot,
 }: {
   spots: SakuraSpot[];
   onSpotClick: (spot: SakuraSpot) => void;
+  focusSpot?: SakuraSpot | null;
 }) {
   return (
     <MapContainer
@@ -43,6 +56,7 @@ export default function SakuraMap({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>'
       />
       <FitBounds spots={spots} />
+      <FlyTo spot={focusSpot ?? null} />
       {spots.map((spot) => {
         if (spot.lat == null || spot.lng == null) return null;
         const isMankai = spot.status === "満開";

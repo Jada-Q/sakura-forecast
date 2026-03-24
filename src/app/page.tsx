@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import FilterChips from "@/components/FilterChips";
 import StatusBadge from "@/components/StatusBadge";
 import LangSwitcher from "@/components/LangSwitcher";
-import { DATA_URL, type SakuraSpot, type BloomStatus, type SakuraData } from "@/lib/data";
+import { DATA_URL, STATUS_CONFIG, type SakuraSpot, type BloomStatus, type SakuraData } from "@/lib/data";
 import { toggleFavorite, isFavorite } from "@/lib/favorites";
 import { useLocale } from "@/lib/locale-context";
+import type { TranslationKey } from "@/lib/i18n";
 
 const SakuraMap = dynamic(() => import("@/components/SakuraMap"), {
   ssr: false,
@@ -28,11 +29,12 @@ export default function MapPage() {
     counts: SakuraData["counts"];
   } | null>(null);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<Set<BloomStatus>>(
-    new Set()
-  );
+  const [statusFilter, setStatusFilter] = useState<Set<BloomStatus>>(new Set());
   const [selectedSpot, setSelectedSpot] = useState<SakuraSpot | null>(null);
+  const [focusSpot, setFocusSpot] = useState<SakuraSpot | null>(null);
+  const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(true);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch(DATA_URL)
@@ -49,6 +51,17 @@ export default function MapPage() {
         console.error("Failed to load data:", err);
         setLoading(false);
       });
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowResults(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
   const filteredSpots = useMemo(() => {
@@ -70,16 +83,19 @@ export default function MapPage() {
   const toggleStatus = useCallback((status: BloomStatus) => {
     setStatusFilter((prev) => {
       const next = new Set(prev);
-      if (next.has(status)) {
-        next.delete(status);
-      } else {
-        next.add(status);
-      }
+      next.has(status) ? next.delete(status) : next.add(status);
       return next;
     });
   }, []);
 
   const handleSpotClick = useCallback((spot: SakuraSpot) => {
+    setSelectedSpot(spot);
+  }, []);
+
+  const handleSearchSelect = useCallback((spot: SakuraSpot) => {
+    setShowResults(false);
+    setSearch("");
+    setFocusSpot(spot);
     setSelectedSpot(spot);
   }, []);
 
@@ -101,14 +117,20 @@ export default function MapPage() {
           </div>
         </div>
 
-        {/* Search */}
-        <div className="relative">
+        {/* Search with dropdown */}
+        <div className="relative" ref={searchRef}>
           <input
             type="text"
             placeholder={t("searchPlaceholder")}
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-9 pr-4 text-sm outline-none transition-colors focus:border-pink-300 focus:bg-white"
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setShowResults(e.target.value.trim().length > 0);
+            }}
+            onFocus={() => {
+              if (search.trim()) setShowResults(true);
+            }}
+            className="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-9 pr-10 text-sm outline-none transition-colors focus:border-pink-300 focus:bg-white"
           />
           <svg
             className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
@@ -117,12 +139,53 @@ export default function MapPage() {
             stroke="currentColor"
             strokeWidth={2}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
           </svg>
+          {search && (
+            <button
+              onClick={() => { setSearch(""); setShowResults(false); }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            >
+              ✕
+            </button>
+          )}
+
+          {/* Search results dropdown */}
+          {showResults && search.trim() && (
+            <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg">
+              {filteredSpots.length === 0 ? (
+                <div className="px-4 py-3 text-center text-sm text-gray-400">
+                  {t("noResults")}
+                </div>
+              ) : (
+                filteredSpots.slice(0, 20).map((spot) => (
+                  <button
+                    key={spot.id}
+                    onClick={() => handleSearchSelect(spot)}
+                    className="flex w-full items-center gap-3 border-b border-gray-50 px-4 py-2.5 text-left transition-colors hover:bg-pink-50 last:border-b-0"
+                  >
+                    <span
+                      className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm"
+                      style={{ backgroundColor: STATUS_CONFIG[spot.status]?.color ?? "#eee" }}
+                    >
+                      {STATUS_CONFIG[spot.status]?.emoji || "🌸"}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-gray-900">{spot.name}</p>
+                      <p className="text-xs text-gray-400">
+                        {spot.region} · {t(spot.status as TranslationKey)}
+                      </p>
+                    </div>
+                  </button>
+                ))
+              )}
+              {filteredSpots.length > 20 && (
+                <div className="px-4 py-2 text-center text-[11px] text-gray-400">
+                  +{filteredSpots.length - 20} ...
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Filters */}
@@ -141,7 +204,11 @@ export default function MapPage() {
             <span className="animate-pulse text-3xl">🌸</span>
           </div>
         ) : (
-          <SakuraMap spots={filteredSpots} onSpotClick={handleSpotClick} />
+          <SakuraMap
+            spots={filteredSpots}
+            onSpotClick={handleSpotClick}
+            focusSpot={focusSpot}
+          />
         )}
       </div>
 
@@ -161,37 +228,24 @@ export default function MapPage() {
             </div>
             <div className="flex items-start gap-3">
               {selectedSpot.imageUrl ? (
-                <img
-                  src={selectedSpot.imageUrl}
-                  alt={selectedSpot.name}
-                  className="h-20 w-20 rounded-xl object-cover"
-                />
+                <img src={selectedSpot.imageUrl} alt={selectedSpot.name} className="h-20 w-20 rounded-xl object-cover" />
               ) : (
-                <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-pink-50 text-3xl">
-                  🌸
-                </div>
+                <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-pink-50 text-3xl">🌸</div>
               )}
               <div className="flex-1 pr-16">
-                <h3 className="text-base font-bold text-gray-900">
-                  {selectedSpot.name}
-                </h3>
+                <h3 className="text-base font-bold text-gray-900">{selectedSpot.name}</h3>
                 <p className="text-xs text-gray-500">{selectedSpot.region}</p>
                 <div className="mt-1">
                   <StatusBadge status={selectedSpot.status} size="md" />
                 </div>
                 {selectedSpot.season && (
-                  <p className="mt-1 text-xs text-gray-400">
-                    {t("bestSeason")}: {selectedSpot.season}
-                  </p>
+                  <p className="mt-1 text-xs text-gray-400">{t("bestSeason")}: {selectedSpot.season}</p>
                 )}
               </div>
             </div>
             <div className="mt-3 flex gap-2">
               <button
-                onClick={() => {
-                  router.push(`/spot?id=${selectedSpot.id}`);
-                  setSelectedSpot(null);
-                }}
+                onClick={() => { router.push(`/spot?id=${selectedSpot.id}`); setSelectedSpot(null); }}
                 className="flex-1 rounded-full bg-pink-500 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-pink-600"
               >
                 {t("viewDetails")}
@@ -199,8 +253,7 @@ export default function MapPage() {
               {selectedSpot.lat && selectedSpot.lng && (
                 <a
                   href={`https://www.google.com/maps/search/?api=1&query=${selectedSpot.lat},${selectedSpot.lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-center rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
                 >
                   {t("mapLink")}
@@ -216,31 +269,18 @@ export default function MapPage() {
 
 function FavButton({ spotId }: { spotId: number }) {
   const [fav, setFav] = useState(() => isFavorite(spotId));
-
-  useEffect(() => {
-    setFav(isFavorite(spotId));
-  }, [spotId]);
+  useEffect(() => { setFav(isFavorite(spotId)); }, [spotId]);
 
   return (
     <button
-      onClick={() => {
-        toggleFavorite(spotId);
-        setFav(!fav);
-      }}
+      onClick={() => { toggleFavorite(spotId); setFav(!fav); }}
       className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100"
     >
       <svg
         className={`h-4 w-4 ${fav ? "fill-pink-500 text-pink-500" : "text-gray-400"}`}
-        fill={fav ? "currentColor" : "none"}
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
+        fill={fav ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
       >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
-        />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
       </svg>
     </button>
   );
