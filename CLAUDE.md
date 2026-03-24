@@ -12,7 +12,7 @@ npm run build        # Production build (static export to ./out/)
 npm run lint         # ESLint
 ```
 
-For GitHub Pages deployment, the build uses `NEXT_PUBLIC_BASE_PATH=/sakura-forecast` to set the base path. This is handled automatically by the GitHub Actions workflow.
+For GitHub Pages deployment, the build uses `NEXT_PUBLIC_BASE_PATH=/sakura-forecast` to set the base path. This is handled automatically by the GitHub Actions workflow (`.github/workflows/deploy.yml`).
 
 ## Architecture
 
@@ -30,17 +30,28 @@ Every page fetches `data.json` client-side via `fetch()`. Spots are indexed by a
 - **B tier** (880): Walker+ measured data — has `season`, `tags`, `imageUrl`, `detailUrl`
 - **C tier** (545): Estimated from nearest JMA point — same fields as B
 
+### Bloom Status: 7 Raw → 4 Display
+
+Upstream data has 7 raw statuses (`BloomStatus`), but the UI groups them into 4 display statuses (`DisplayStatus`) for clarity:
+
+- **つぼみ** ← つぼみ
+- **開花中** ← 咲き始め, 5分咲き, 7分咲き
+- **満開** ← 満開
+- **葉桜** ← 散り始め, 青葉
+
+Key functions in `src/lib/data.ts`: `getDisplayStatus()`, `DISPLAY_STATUS_CONFIG` (colors), `DISPLAY_TO_BLOOM` (reverse mapping for filters). `STATUS_CONFIG` still exists for backward compat, mapping each raw status to its display group's color.
+
 ### Region Filtering
 
 B/C tier spots have `region = "東京都文京区"` (prefecture+city), while A tier has `region = "関東甲信"` (broad region). The `getRegionGroup()` function in `src/lib/data.ts` maps prefectures to region groups for consistent filtering.
 
 ### i18n
 
-Three languages (ja/zh/en) via `src/lib/i18n.ts` translation dictionary + React context (`LocaleProvider` in layout). Use `useLocale()` hook → `t("key")`. Bloom status names (つぼみ, 満開, etc.) are translation keys. Locale persisted to localStorage.
+Three languages (ja/zh/en) via `src/lib/i18n.ts` translation dictionary + React context (`LocaleProvider` in layout). Use `useLocale()` hook → `t("key")`. Both raw statuses and display statuses are translation keys. Locale persisted to localStorage.
 
 ### Map
 
-`SakuraMap.tsx` uses react-leaflet `CircleMarker` (not marker cluster — installed but unused due to ESM issues). Loaded via `next/dynamic` with `ssr: false`. CartoDB light tiles. Leaflet z-index is 400+, so overlays need `z-[1000]` or higher.
+`SakuraMap.tsx` uses react-leaflet `CircleMarker` (no tooltips — removed because they intercept taps on mobile, preventing the preview card from appearing). Loaded via `next/dynamic` with `ssr: false`. CartoDB light tiles. Leaflet z-index is 400+, so overlays need `z-[1000]` or higher. The map container needs `min-h-0` alongside `flex-1` to prevent height collapse in static export.
 
 ### Spot Detail Routing
 
@@ -48,4 +59,6 @@ Uses `/spot?id=N` (query param) instead of `/spot/[id]` (dynamic route) because 
 
 ### Styling
 
-Tailwind CSS v4. Custom CSS classes: `.safe-bottom` (mobile safe area), `.pb-nav` (bottom nav offset 60px), `.scrollbar-hide`. Zen Maru Gothic font for Japanese text.
+Tailwind CSS v4 with a warm, low-saturation color theme defined as CSS custom properties in `globals.css`. Key design tokens: `warm-bg` (暖奶白 `#FFF8F3`), `warm-card` (柔白 `#FFFCF9`), `warm-accent` (烟粉 `#D4848B`), `warm-border` (暖砂 `#F0DDD3`), `warm-text` (暖棕 `#5C4338`), `warm-muted` (淡棕 `#A08878`), `warm-peach` (暖桃 `#FFF0E8`). Use these via Tailwind classes like `bg-warm-bg`, `text-warm-accent`, etc.
+
+Custom CSS classes: `.safe-bottom` (mobile safe area), `.pb-nav` (bottom nav offset 60px), `.scrollbar-hide`. Zen Maru Gothic font for Japanese text.
