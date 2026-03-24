@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import StatusBadge from "./StatusBadge";
+import { useLocale } from "@/lib/locale-context";
 import type { SakuraSpot } from "@/lib/data";
 
 export default function SpotCard({ spot }: { spot: SakuraSpot }) {
-  const tierLabel = spot.tier === "A" ? "気象庁" : spot.tier === "B" ? "実測" : "推定";
+  const { t } = useLocale();
+  const tierKey = spot.tier === "A" ? "tierShortA" : spot.tier === "B" ? "tierShortB" : "tierShortC";
 
   return (
     <Link
@@ -31,7 +33,7 @@ export default function SpotCard({ spot }: { spot: SakuraSpot }) {
         <p className="text-xs text-gray-500">{spot.region}</p>
         <div className="mt-1 flex items-center gap-2">
           <StatusBadge status={spot.status} />
-          <span className="text-[10px] text-gray-400">{tierLabel}</span>
+          <span className="text-[10px] text-gray-400">{t(tierKey)}</span>
         </div>
       </div>
     </Link>

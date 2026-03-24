@@ -5,8 +5,10 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import FilterChips from "@/components/FilterChips";
 import StatusBadge from "@/components/StatusBadge";
+import LangSwitcher from "@/components/LangSwitcher";
 import { DATA_URL, type SakuraSpot, type BloomStatus, type SakuraData } from "@/lib/data";
 import { toggleFavorite, isFavorite } from "@/lib/favorites";
+import { useLocale } from "@/lib/locale-context";
 
 const SakuraMap = dynamic(() => import("@/components/SakuraMap"), {
   ssr: false,
@@ -19,6 +21,7 @@ const SakuraMap = dynamic(() => import("@/components/SakuraMap"), {
 
 export default function MapPage() {
   const router = useRouter();
+  const { t } = useLocale();
   const [spots, setSpots] = useState<SakuraSpot[]>([]);
   const [meta, setMeta] = useState<{
     updatedAt: string;
@@ -86,20 +89,23 @@ export default function MapPage() {
       <div className="relative z-10 space-y-2 bg-white/95 px-4 pb-2 pt-3 shadow-sm backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <h1 className="text-lg font-bold text-gray-900">
-            🌸 Sakura Forecast
+            🌸 {t("appTitle")}
           </h1>
-          {meta && (
-            <span className="text-[10px] text-gray-400">
-              {meta.updatedAt}
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            <LangSwitcher />
+            {meta && (
+              <span className="text-[10px] text-gray-400">
+                {meta.updatedAt}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Search */}
         <div className="relative">
           <input
             type="text"
-            placeholder="地名を検索..."
+            placeholder={t("searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-9 pr-4 text-sm outline-none transition-colors focus:border-pink-300 focus:bg-white"
@@ -124,7 +130,7 @@ export default function MapPage() {
 
         {/* Count */}
         <p className="text-[11px] text-gray-400">
-          {filteredSpots.length} / {spots.length} スポット表示中
+          {filteredSpots.length} / {spots.length} {t("spotsShowing")}
         </p>
       </div>
 
@@ -139,7 +145,7 @@ export default function MapPage() {
         )}
       </div>
 
-      {/* Spot preview sheet — z-[1000] to sit above Leaflet panes (z-400+) */}
+      {/* Spot preview sheet */}
       {selectedSpot && (
         <div className="fixed inset-x-0 bottom-[60px] z-[1000] mx-auto max-w-lg px-4 pb-2">
           <div className="relative rounded-2xl border border-gray-100 bg-white p-4 shadow-lg">
@@ -175,7 +181,7 @@ export default function MapPage() {
                 </div>
                 {selectedSpot.season && (
                   <p className="mt-1 text-xs text-gray-400">
-                    見頃: {selectedSpot.season}
+                    {t("bestSeason")}: {selectedSpot.season}
                   </p>
                 )}
               </div>
@@ -188,7 +194,7 @@ export default function MapPage() {
                 }}
                 className="flex-1 rounded-full bg-pink-500 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-pink-600"
               >
-                詳細を見る
+                {t("viewDetails")}
               </button>
               {selectedSpot.lat && selectedSpot.lng && (
                 <a
@@ -197,7 +203,7 @@ export default function MapPage() {
                   rel="noopener noreferrer"
                   className="flex items-center justify-center rounded-full border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
                 >
-                  地図
+                  {t("mapLink")}
                 </a>
               )}
             </div>
@@ -222,7 +228,6 @@ function FavButton({ spotId }: { spotId: number }) {
         setFav(!fav);
       }}
       className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100"
-      aria-label={fav ? "お気に入り解除" : "お気に入り追加"}
     >
       <svg
         className={`h-4 w-4 ${fav ? "fill-pink-500 text-pink-500" : "text-gray-400"}`}

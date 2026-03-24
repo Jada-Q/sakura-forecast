@@ -2,20 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useLocale } from "@/lib/locale-context";
+import type { TranslationKey } from "@/lib/i18n";
 
-const NAV_ITEMS = [
-  { href: "/", label: "地図", icon: MapIcon },
-  { href: "/explore", label: "探索", icon: SearchIcon },
-  { href: "/favorites", label: "お気に入り", icon: HeartIcon },
-] as const;
+const NAV_ITEMS: { href: string; labelKey: TranslationKey; icon: React.FC<{ active: boolean }> }[] = [
+  { href: "/", labelKey: "navMap", icon: MapIcon },
+  { href: "/explore", labelKey: "navExplore", icon: SearchIcon },
+  { href: "/favorites", labelKey: "navFavorites", icon: HeartIcon },
+];
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const { t } = useLocale();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white/95 backdrop-blur-sm safe-bottom">
       <div className="mx-auto flex max-w-lg">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {NAV_ITEMS.map(({ href, labelKey, icon: Icon }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
             <Link
@@ -26,7 +29,7 @@ export default function BottomNav() {
               }`}
             >
               <Icon active={active} />
-              <span>{label}</span>
+              <span>{t(labelKey)}</span>
             </Link>
           );
         })}

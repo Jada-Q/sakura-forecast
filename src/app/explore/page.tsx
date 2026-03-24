@@ -4,23 +4,25 @@ import { useState, useEffect, useMemo } from "react";
 import SpotCard from "@/components/SpotCard";
 import FilterChips from "@/components/FilterChips";
 import { DATA_URL, type SakuraSpot, type BloomStatus, type SakuraData } from "@/lib/data";
+import { useLocale } from "@/lib/locale-context";
 
 const REGION_GROUPS = [
-  { label: "すべて", value: "" },
-  { label: "北海道", value: "北海道" },
-  { label: "東北", value: "東北" },
-  { label: "関東", value: "関東" },
-  { label: "北陸", value: "北陸" },
-  { label: "甲信", value: "甲信" },
-  { label: "東海", value: "東海" },
-  { label: "近畿", value: "近畿" },
-  { label: "中国", value: "中国" },
-  { label: "四国", value: "四国" },
-  { label: "九州", value: "九州" },
-  { label: "沖縄", value: "沖縄" },
+  { value: "" },
+  { value: "北海道" },
+  { value: "東北" },
+  { value: "関東" },
+  { value: "北陸" },
+  { value: "甲信" },
+  { value: "東海" },
+  { value: "近畿" },
+  { value: "中国" },
+  { value: "四国" },
+  { value: "九州" },
+  { value: "沖縄" },
 ];
 
 export default function ExplorePage() {
+  const { t, tReplace } = useLocale();
   const [spots, setSpots] = useState<SakuraSpot[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -60,13 +62,12 @@ export default function ExplorePage() {
   return (
     <div className="min-h-dvh bg-gray-50 pb-nav">
       <div className="sticky top-0 z-10 space-y-2 bg-white px-4 pb-3 pt-4 shadow-sm">
-        <h1 className="text-lg font-bold text-gray-900">探索</h1>
+        <h1 className="text-lg font-bold text-gray-900">{t("exploreTitle")}</h1>
 
-        {/* Search */}
         <div className="relative">
           <input
             type="text"
-            placeholder="地名を検索..."
+            placeholder={t("searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-full border border-gray-200 bg-gray-50 py-2 pl-9 pr-4 text-sm outline-none focus:border-pink-300 focus:bg-white"
@@ -78,15 +79,10 @@ export default function ExplorePage() {
             stroke="currentColor"
             strokeWidth={2}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
           </svg>
         </div>
 
-        {/* Region chips */}
         <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
           {REGION_GROUPS.map((r) => (
             <button
@@ -98,12 +94,11 @@ export default function ExplorePage() {
                   : "bg-gray-100 text-gray-600"
               }`}
             >
-              {r.label}
+              {r.value || t("allRegions")}
             </button>
           ))}
         </div>
 
-        {/* Status filter */}
         <FilterChips
           selected={statusFilter}
           onToggle={(status) =>
@@ -116,11 +111,10 @@ export default function ExplorePage() {
         />
 
         <p className="text-[11px] text-gray-400">
-          {filtered.length} スポット
+          {filtered.length} {t("spots")}
         </p>
       </div>
 
-      {/* List */}
       <div className="space-y-2 px-4 pt-3">
         {loading ? (
           <div className="flex justify-center py-12">
@@ -128,7 +122,7 @@ export default function ExplorePage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="py-12 text-center text-sm text-gray-400">
-            条件に一致するスポットがありません
+            {t("noResults")}
           </div>
         ) : (
           filtered.slice(0, 100).map((spot) => (
@@ -137,7 +131,7 @@ export default function ExplorePage() {
         )}
         {filtered.length > 100 && (
           <p className="py-4 text-center text-xs text-gray-400">
-            上位 100 件を表示中（全 {filtered.length} 件）
+            {tReplace("showingTop", { n: 100, total: filtered.length })}
           </p>
         )}
       </div>

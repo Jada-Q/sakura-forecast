@@ -1,4 +1,8 @@
+"use client";
+
 import { STATUS_CONFIG, type BloomStatus } from "@/lib/data";
+import { useLocale } from "@/lib/locale-context";
+import type { TranslationKey } from "@/lib/i18n";
 
 export default function StatusBadge({
   status,
@@ -7,6 +11,7 @@ export default function StatusBadge({
   status: BloomStatus;
   size?: "sm" | "md";
 }) {
+  const { t } = useLocale();
   const config = STATUS_CONFIG[status];
   if (!config) return <span className="text-xs text-gray-400">{status}</span>;
 
@@ -18,7 +23,7 @@ export default function StatusBadge({
       style={{ backgroundColor: config.color, color: "#333" }}
     >
       {config.emoji && <span>{config.emoji}</span>}
-      {config.label}
+      {t(status as TranslationKey)}
     </span>
   );
 }

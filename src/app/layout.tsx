@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import BottomNav from "@/components/BottomNav";
+import { LocaleProvider } from "@/lib/locale-context";
 
 export const metadata: Metadata = {
   title: "Sakura Forecast",
@@ -28,8 +29,10 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-dvh">
-        {children}
-        <BottomNav />
+        <LocaleProvider>
+          {children}
+          <BottomNav />
+        </LocaleProvider>
       </body>
     </html>
   );

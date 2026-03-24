@@ -1,6 +1,8 @@
 "use client";
 
 import { STATUS_CONFIG, type BloomStatus } from "@/lib/data";
+import { useLocale } from "@/lib/locale-context";
+import type { TranslationKey } from "@/lib/i18n";
 
 const ALL_STATUSES = Object.keys(STATUS_CONFIG) as BloomStatus[];
 
@@ -11,6 +13,8 @@ export default function FilterChips({
   selected: Set<BloomStatus>;
   onToggle: (status: BloomStatus) => void;
 }) {
+  const { t } = useLocale();
+
   return (
     <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
       {ALL_STATUSES.map((status) => {
@@ -27,7 +31,7 @@ export default function FilterChips({
             }`}
             style={active ? { backgroundColor: config.color } : undefined}
           >
-            {config.emoji} {config.label}
+            {config.emoji} {t(status as TranslationKey)}
           </button>
         );
       })}
